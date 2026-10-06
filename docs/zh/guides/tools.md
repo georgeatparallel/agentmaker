@@ -308,6 +308,22 @@ async with MCPClient(url="https://mcp.example.com/mcp", namespace="calendar", au
 
 用 `on_conflict="skip"`（而不是在第一次名称冲突时报错）来注册，可以避免一个重复项就中断整个加载循环。
 
+### 可选的 Parallel 网页搜索
+
+[`examples/17_parallel_search_mcp.py`](https://github.com/xinhuangcs/agentmaker/blob/main/examples/17_parallel_search_mcp.py) 使用 Streamable HTTP 将 Agent 循环连接到 [Parallel Search MCP](https://docs.parallel.ai/integrations/mcp/search-mcp)。匿名端点适合探索和轻量使用，无需 Parallel 账号或 API key，但有速率限制。LLM 推理仍需要所选服务商的凭据。
+
+在仓库目录中安装 MCP extra，并设置 LLM 服务商的 key：
+
+```bash
+uv sync --locked --extra mcp
+export OPENAI_API_KEY="your-provider-key"
+uv run --locked --extra mcp python examples/17_parallel_search_mcp.py "什么是 Model Context Protocol？请引用来源。"
+```
+
+可用 `--provider` 选择另一个已配置的 `LLMClient` 服务商。示例从 `https://search.parallel.ai/mcp` 加载 `parallel_web_search` 和 `parallel_web_fetch`，发送 `agentmaker` User-Agent，不发送 Parallel Authorization 头，并在整个 `Agent.arun` 期间保持连接。远程调用保留默认的确认要求：在终端逐次批准或拒绝执行。结果保留 MCP 外部内容防护，每次调用的超时为 60 秒。
+
+该示例需要主动运行。内置 `SearchTool` 的 Tavily、DuckDuckGo、Brave、SerpAPI 回退顺序保持不变。
+
 ## 运行时工具挑选（Tool-RAG）
 
 一旦一个 Agent 有很多工具，把每个工具的完整 schema 都塞进 prompt 既昂贵又会拉低准确率。Tool-RAG（RAG 即 retrieval-augmented generation，检索增强生成，只检索相关条目而不是把一切都发过去）只为当前输入检索出最相关的工具，并只展开那一个子集。`ToolRetriever` 把每个工具的名称、描述和参数名索引进一个共享的检索器，并返回最匹配的若干项：

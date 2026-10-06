@@ -308,6 +308,22 @@ Key safety points, all handled for you:
 
 Registering with `on_conflict="skip"` (rather than raising on the first name collision) keeps a single duplicate from aborting the whole load loop.
 
+### Opt-in Parallel web search
+
+[`examples/17_parallel_search_mcp.py`](https://github.com/xinhuangcs/agentmaker/blob/main/examples/17_parallel_search_mcp.py) connects the agent loop to [Parallel Search MCP](https://docs.parallel.ai/integrations/mcp/search-mcp) over Streamable HTTP. Its anonymous endpoint is free for exploration and light use, with rate limits; no Parallel account or key is needed. LLM inference still requires your configured provider credentials.
+
+From a repository checkout, install the MCP extra and set your LLM provider's key:
+
+```bash
+uv sync --locked --extra mcp
+export OPENAI_API_KEY="your-provider-key"
+uv run --locked --extra mcp python examples/17_parallel_search_mcp.py "What is the Model Context Protocol? Cite sources."
+```
+
+Pass `--provider` to use another configured `LLMClient` provider. The example loads `parallel_web_search` and `parallel_web_fetch` from `https://search.parallel.ai/mcp`, sends an `agentmaker` User-Agent, and keeps the connection alive throughout `Agent.arun`. It sends no Parallel authorization header. Remote calls retain the default confirmation requirement: approve each call at the terminal prompt, or decline it to prevent execution. Results retain the MCP external-content guardrail and calls use a 60-second timeout.
+
+This is a separate, opt-in agent example. The built-in `SearchTool` still uses its existing Tavily, DuckDuckGo, Brave, and SerpAPI fallback order.
+
 ## Runtime tool selection (Tool-RAG)
 
 Once an agent has many tools, putting every tool's full schema in the prompt is expensive and degrades accuracy. Tool-RAG (RAG is retrieval-augmented generation, retrieving relevant items instead of sending everything) retrieves only the most relevant tools for the current input and expands just that subset. `ToolRetriever` indexes each tool's name, description, and parameter names into a shared retriever and returns the top matches:

@@ -112,7 +112,7 @@ print(agent.run("What's the weather in Copenhagen?").final_output)
 
 ## Learn more
 
-- [`examples/`](https://github.com/xinhuangcs/agentmaker/tree/main/examples): sixteen runnable, numbered examples, from quickstart to skills.
+- [`examples/`](https://github.com/xinhuangcs/agentmaker/tree/main/examples): seventeen runnable, numbered examples, from quickstart to skills.
 - [`CHANGELOG.md`](https://github.com/xinhuangcs/agentmaker/blob/main/CHANGELOG.md)
 - Versioning: pre-1.0, minor versions may introduce breaking changes and patch versions only fix. Pin `agentmaker>=0.2,<0.3`.
 
